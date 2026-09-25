@@ -7,30 +7,18 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const dataDir = path.join(__dirname, 'data');
 const dataFile = path.join(dataDir, 'ledger.json');
+const DATA_VERSION = 2;
 
 function createId(prefix = 'id') {
   return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2, 10)}`;
 }
 
-function seedData() {
-  const customers = [
-    { id: createId('customer'), name: 'রহিম', phone: '01712345678', note: 'নিয়মিত ক্রেতা', createdAt: new Date().toISOString() },
-    { id: createId('customer'), name: 'করিম', phone: '01987654321', note: 'ফসল বিক্রেতা', createdAt: new Date().toISOString() },
-    { id: createId('customer'), name: 'সুলতানা', phone: '01876543210', note: 'সপ্তাহিক', createdAt: new Date().toISOString() },
-  ];
-
-  const transactions = [
-    { id: createId('txn'), customerId: customers[0].id, amount: 1200, type: 'credit', note: 'খাবার সামগ্রী', createdAt: new Date(Date.now() - 2 * 3600000).toISOString() },
-    { id: createId('txn'), customerId: customers[0].id, amount: 700, type: 'payment', note: 'টাকা দেওয়া', createdAt: new Date(Date.now() - 1 * 3600000).toISOString() },
-    { id: createId('txn'), customerId: customers[1].id, amount: 1500, type: 'credit', note: 'দৈনিক', createdAt: new Date(Date.now() - 5 * 3600000).toISOString() },
-    { id: createId('txn'), customerId: customers[1].id, amount: 500, type: 'payment', note: 'অংশ পরিশোধ', createdAt: new Date(Date.now() - 2 * 3600000).toISOString() },
-    { id: createId('txn'), customerId: customers[2].id, amount: 900, type: 'credit', note: 'বস্তা', createdAt: new Date(Date.now() - 7 * 3600000).toISOString() },
-  ];
-
+function createEmptyData() {
   return {
-    customers,
-    transactions,
-    selectedCustomerId: customers[0].id,
+    version: DATA_VERSION,
+    customers: [],
+    transactions: [],
+    selectedCustomerId: null,
   };
 }
 
@@ -40,7 +28,7 @@ function ensureStorage() {
   }
 
   if (!fs.existsSync(dataFile)) {
-    fs.writeFileSync(dataFile, JSON.stringify(seedData(), null, 2), 'utf8');
+    fs.writeFileSync(dataFile, JSON.stringify(createEmptyData(), null, 2), 'utf8');
   }
 }
 
@@ -48,9 +36,15 @@ function readData() {
   ensureStorage();
   const raw = fs.readFileSync(dataFile, 'utf8');
   try {
-    return JSON.parse(raw);
+    const data = JSON.parse(raw);
+    if (data.version !== DATA_VERSION) {
+      const fresh = createEmptyData();
+      fs.writeFileSync(dataFile, JSON.stringify(fresh, null, 2), 'utf8');
+      return fresh;
+    }
+    return data;
   } catch (error) {
-    const fresh = seedData();
+    const fresh = createEmptyData();
     fs.writeFileSync(dataFile, JSON.stringify(fresh, null, 2), 'utf8');
     return fresh;
   }
@@ -185,7 +179,7 @@ app.get('/api/summary', (req, res) => {
 });
 
 app.post('/api/reset', (req, res) => {
-  const fresh = seedData();
+  const fresh = createEmptyData();
   writeData(fresh);
   res.json({ ok: true, message: 'Data reset successfully' });
 });
