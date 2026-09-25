@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.*
+!.env.example
+npm-debug.log*
+.DS_Store
+Thumbs.db
+android/.gradle/
+android/build/
+android/app/build/
+android/capacitor-cordova-android-plugins/build/
+android/local.properties
+*.jks
+*.keystore
+data/ledger.json

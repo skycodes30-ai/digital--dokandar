@@ -1,0 +1,44 @@
+name: Validate app
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check server.js
+          node --check public/script.js
+          node --check public/admob.js
+          node --check public/pwa.js
+
+      - name: Validate Render health route locally
+        run: |
+          PORT=3100 node server.js > server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
+          for attempt in {1..20}; do
+            if curl --fail --silent http://127.0.0.1:3100/api/health; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat server.log
+          exit 1

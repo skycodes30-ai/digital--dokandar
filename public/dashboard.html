@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#2563eb" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
+    <title>দোকান হিসাব</title>
+    <meta name="description" content="দোকানদারের বাকি, টাকা, রিমাইন্ডার এবং ভয়েস লেজার" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <div class="brand-mark">৳</div>
+          <div>
+            <p class="eyebrow">দোকান ব্যবস্থাপনা</p>
+            <h1>দোকান হিসাব</h1>
+          </div>
+        </div>
+        <div class="header-actions">
+          <a class="secondary" href="/">হোম</a>
+          <button class="secondary" id="exportBtn" type="button">CSV এক্সপোর্ট</button>
+          <button class="danger" id="resetBtn" type="button">ডেটা রিসেট</button>
+        </div>
+      </header>
+
+      <section class="hero-strip">
+        <div class="hero-copy">
+          <span class="mini-tag">আজকের সারাংশ</span>
+          <h2>খাতা বদলে স্মার্ট ব্যবসা</h2>
+        </div>
+        <div class="hero-badges" aria-label="দ্রুত তথ্য">
+          <span>⚡ দ্রুত লেনদেন</span>
+          <span>📞 স্মার্ট রিমাইন্ডার</span>
+          <span>🗂️ অটো রিপোর্ট</span>
+        </div>
+      </section>
+
+      <main class="dashboard">
+        <section class="metrics" aria-label="হিসাবের সারাংশ">
+          <article class="metric-card highlight"><span class="label">মোট কাস্টমার</span><strong id="metricCustomers">0</strong></article>
+          <article class="metric-card"><span class="label">মোট বাকি</span><strong id="metricDue">0৳</strong></article>
+          <article class="metric-card"><span class="label">আজকের আয়</span><strong id="metricToday">0৳</strong></article>
+          <article class="metric-card"><span class="label">বকেয়া কাস্টমার</span><strong id="metricPending">0</strong></article>
+        </section>
+
+        <section class="layout-grid">
+          <aside class="panel form-panel">
+            <div class="panel-header"><h2>নতুন কাস্টমার</h2></div>
+            <form id="customerForm">
+              <label><span>নাম</span><input id="customerName" name="name" type="text" placeholder="যেমন: রহিম" required /></label>
+              <label><span>ফোন</span><input id="customerPhone" name="phone" type="tel" placeholder="০১৭১২৩৪৫৬৭" required /></label>
+              <label><span>নোট</span><textarea id="customerNote" name="note" rows="3" placeholder="কোনো নোট লিখুন"></textarea></label>
+              <button type="submit" class="primary-btn">কাস্টমার যোগ করুন</button>
+            </form>
+          </aside>
+
+          <section class="panel list-panel">
+            <div class="panel-header"><h2>কাস্টমার তালিকা</h2></div>
+            <label class="search-box"><span>খুঁজুন</span><input id="customerSearch" type="search" placeholder="নাম বা ফোন দিয়ে খুঁজুন" /></label>
+            <ul id="customerList" class="customer-list" aria-live="polite"></ul>
+          </section>
+
+          <section class="panel detail-panel">
+            <div class="panel-header"><h2>কাস্টমার বিস্তারিত</h2></div>
+            <div id="customerDetail" class="customer-detail empty-state">কাস্টমার নির্বাচন করুন</div>
+          </section>
+        </section>
+
+        <section class="lower-grid">
+          <section class="panel transaction-panel">
+            <div class="panel-header"><h2>লেনদেন</h2></div>
+            <label class="amount-row"><span>টাকার পরিমাণ</span><input id="amountInput" type="number" min="1" step="1" value="500" /></label>
+            <div class="quick-actions">
+              <button class="payment-btn" data-transaction="payment" type="button">দিলো</button>
+              <button class="credit-btn" data-transaction="credit" type="button">পেলো</button>
+            </div>
+            <label><span>নোট</span><textarea id="transactionNote" rows="3" placeholder="যেমন: চা, শাকসবজি, কাঁচা বাকি"></textarea></label>
+            <div class="voice-box">
+              <button id="voiceBtn" class="voice-btn" type="button">🎙️ ভয়েস দিয়ে এন্ট্রি</button>
+              <textarea id="voiceOutput" rows="2" placeholder="ভয়েস থেকে কনভার্টেড টেক্সট দেখাবে"></textarea>
+            </div>
+            <div class="transaction-history-box"><h3>সাম্প্রতিক লেনদেন</h3><ul id="transactionHistory" class="transaction-history"></ul></div>
+          </section>
+
+          <section class="panel reminder-panel">
+            <div class="panel-header"><h2>রিমাইন্ডার</h2></div>
+            <div class="reminder-card">
+              <p class="reminder-label">প্রস্তুত মেসেজ</p>
+              <textarea id="reminderMessage" rows="6" readonly></textarea>
+              <div class="reminder-actions">
+                <button class="secondary" id="copyReminderBtn" type="button">কপি করুন</button>
+                <button class="primary-btn" id="smsBtn" type="button">SMS</button>
+                <button class="whatsapp-btn" id="whatsappBtn" type="button">WhatsApp</button>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+    <script src="app-config.js"></script>
+    <script src="admob.js"></script>
+    <script src="script.js"></script>
+    <script src="pwa.js"></script>
+  </body>
+</html>
